@@ -240,9 +240,25 @@
       if (isTTSSpeaking) {
         readBtn.textContent = "⏹️ Stop";
         readBtn.title = "Stop speaking (Esc)";
+        readBtn.disabled = false;
       } else {
         readBtn.textContent = "🔊 Read Aloud";
         readBtn.title = "Read selection or full text (Ctrl/Cmd+Enter)";
+        // Disable read button when speech recognition is active
+        readBtn.disabled = shouldKeepListening;
+      }
+    }
+
+    function updateMicButton() {
+      if (shouldKeepListening) {
+        micBtn.classList.add('listening');
+        micBtn.textContent = '⏹️ Stop';
+        micBtn.disabled = false;
+      } else {
+        micBtn.classList.remove('listening');
+        micBtn.textContent = '🎤 Mic Dictation';
+        // Disable mic button when TTS is speaking
+        micBtn.disabled = isTTSSpeaking;
       }
     }
 
@@ -307,6 +323,24 @@
         return;
       }
 
+      // Stop speech recognition if it's active
+      if (shouldKeepListening) {
+        shouldKeepListening = false;
+        if (recognition) {
+          try {
+            recognition.stop();
+          } catch (error) {
+            console.error('Error stopping speech recognition:', error);
+          }
+        }
+        // Update mic button state immediately
+        isListening = false;
+        micBtn.classList.remove('listening');
+        micBtn.textContent = '🎤 Mic Dictation';
+        textArea.classList.remove('listening-textarea');
+        updateMicButton();
+      }
+
       // Cancel any current speech
       window.speechSynthesis.cancel();
 
@@ -343,6 +377,7 @@
           isTTSSpeaking = true;
           setStatus("Speaking...");
           updateReadButton();
+          updateMicButton();
         };
 
         utter.onend = () => {
@@ -350,6 +385,7 @@
           isTTSSpeaking = false;
           setStatus("Done");
           updateReadButton();
+          updateMicButton();
         };
 
         utter.onerror = (evt) => {
@@ -358,6 +394,7 @@
           setStatus("Error during speech: " + (evt.error || "Unknown error"));
           console.error("Speech error:", evt);
           updateReadButton();
+          updateMicButton();
         };
 
         try {
@@ -367,6 +404,7 @@
           console.error("Speech synthesis error:", e);
           isTTSSpeaking = false;
           updateReadButton();
+          updateMicButton();
         }
       }, 100);
     }
@@ -382,6 +420,7 @@
         currentUtterance = null;
         isTTSSpeaking = false;
         updateReadButton();
+        updateMicButton();
       } else {
         // Start TTS
         const selStart = textArea.selectionStart;
@@ -422,6 +461,8 @@
         micBtn.textContent = '⏹️ Stop';
         textArea.classList.add('listening-textarea');
         setStatus("Listening...");
+        updateReadButton();
+        updateMicButton();
       };
 
       recognition.onerror = (event) => {
@@ -443,9 +484,13 @@
             console.error('Error restarting speech recognition:', error);
             shouldKeepListening = false;
             setStatus("Speech recognition stopped");
+            updateReadButton();
+            updateMicButton();
           }
         } else {
           setStatus("Speech recognition stopped");
+          updateReadButton();
+          updateMicButton();
         }
       };
 
@@ -500,6 +545,17 @@
           console.error('Error stopping speech recognition:', error);
         }
       } else {
+        // Stop TTS if it's active before starting speech recognition
+        if (isTTSSpeaking) {
+          if (supportsSpeech()) {
+            window.speechSynthesis.cancel();
+          }
+          currentUtterance = null;
+          isTTSSpeaking = false;
+          updateReadButton();
+          updateMicButton();
+        }
+
         // Start listening
         shouldKeepListening = true;
         try {
