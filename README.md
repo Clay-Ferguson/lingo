@@ -71,10 +71,11 @@ python3 -m http.server 8009
 
 ### Text-to-Speech
 1. **Type or paste text** into the main textarea
-2. **Select specific text** (optional) to read only that portion
-3. **Click "🔊 Read Aloud"** or press **Ctrl/Cmd + Enter**
-4. **Choose your preferred voice** and speaking speed from the dropdowns
-5. **Click "⏹️ Stop"** or press **Escape** to stop reading
+2. **Drag and drop text** from other applications directly into the textarea (especially handy on Linux - simply select text from any app and drag it in)
+3. **Select specific text** (optional) to read only that portion
+4. **Click "🔊 Read Aloud"** or press **Ctrl/Cmd + Enter**
+5. **Choose your preferred voice** and speaking speed from the dropdowns
+6. **Click "⏹️ Stop"** or press **Escape** to stop reading
 
 ### Speech Recognition
 1. **Click "🎤 Mic Dictation"** or press **Ctrl/Cmd + M**
