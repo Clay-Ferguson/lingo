@@ -2,6 +2,8 @@
 
 A powerful, single-file web application for text-to-speech (TTS) and speech recognition functionality. **No web development knowledge required** - simply download and open the HTML file in your Chrome browser to get started! Lingo provides an intuitive interface for reading text aloud and converting speech to text, all running directly in your browser with no dependencies or build process required.
 
+![Lingo Application Screenshot](lingo-screenshot.png)
+
 ## ✨ Features
 
 ### 🔊 Text-to-Speech (TTS)
