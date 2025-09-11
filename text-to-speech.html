@@ -33,6 +33,14 @@
       border-bottom: 1px solid var(--border);
     }
 
+    .app-name {
+      font-size: 30px;
+      font-weight: bold;
+      color: var(--accent);
+      /* margin-right: 16px; */
+      user-select: none;
+    }
+
     .controls-left {
       display: flex;
       gap: 8px;
@@ -169,6 +177,7 @@
 </head>
 <body>
   <div class="topbar" role="region" aria-label="TTS controls">
+    <div class="app-name">Lingo</div>
     <div class="controls-left">
       <div class="tts-panel">
         <button id="readBtn" title="Read selection or full text (Ctrl/Cmd+Enter)">🔊 Read Aloud</button>
