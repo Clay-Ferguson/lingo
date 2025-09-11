@@ -172,7 +172,6 @@
     <div class="controls-left">
       <div class="tts-panel">
         <button id="readBtn" title="Read selection or full text (Ctrl/Cmd+Enter)">Read Aloud</button>
-        <button id="stopBtn" title="Stop speaking (Esc)" disabled>Stop</button>
         <div class="selects" aria-hidden="false">
           <label for="voiceSelect" style="display:none">Voice</label>
           <select id="voiceSelect" aria-label="Choose voice"></select>
@@ -183,7 +182,7 @@
             <option value="1" selected>1.0 — Normal</option>
             <option value="1.15">1.15 — Faster</option>
             <option value="1.25">1.25 — Fastest</option>
-            <option value="1.3">1.3 — Ludicrous</option>
+            <option value="1.3">1.35 — Ludicrous</option>
           </select>
         </div>
       </div>
@@ -199,7 +198,6 @@
 
   <script>
     const readBtn = document.getElementById("readBtn");
-    const stopBtn = document.getElementById("stopBtn");
     const micBtn = document.getElementById("micBtn");
     const voiceSelect = document.getElementById("voiceSelect");
     const rateSelect = document.getElementById("rateSelect");
@@ -210,6 +208,7 @@
     const STORAGE_RATE_KEY = "tts_selected_rate_v1";
 
     let currentUtterance = null;
+    let isTTSSpeaking = false;
     
     // Speech Recognition variables
     let recognition = null;
@@ -226,6 +225,16 @@
 
     function setStatus(text) {
       status.textContent = text || "";
+    }
+
+    function updateReadButton() {
+      if (isTTSSpeaking) {
+        readBtn.textContent = "Stop";
+        readBtn.title = "Stop speaking (Esc)";
+      } else {
+        readBtn.textContent = "Read Aloud";
+        readBtn.title = "Read selection or full text (Ctrl/Cmd+Enter)";
+      }
     }
 
     function populateVoices() {
@@ -322,24 +331,24 @@
 
         utter.onstart = () => {
           currentUtterance = utter;
+          isTTSSpeaking = true;
           setStatus("Speaking...");
-          readBtn.disabled = true;
-          stopBtn.disabled = false;
+          updateReadButton();
         };
 
         utter.onend = () => {
           currentUtterance = null;
+          isTTSSpeaking = false;
           setStatus("Done");
-          readBtn.disabled = false;
-          stopBtn.disabled = true;
+          updateReadButton();
         };
 
         utter.onerror = (evt) => {
           currentUtterance = null;
+          isTTSSpeaking = false;
           setStatus("Error during speech: " + (evt.error || "Unknown error"));
           console.error("Speech error:", evt);
-          readBtn.disabled = false;
-          stopBtn.disabled = true;
+          updateReadButton();
         };
 
         try {
@@ -347,31 +356,33 @@
         } catch (e) {
           setStatus("Error: " + e.message);
           console.error("Speech synthesis error:", e);
-          readBtn.disabled = false;
-          stopBtn.disabled = true;
+          isTTSSpeaking = false;
+          updateReadButton();
         }
       }, 100);
     }
 
     // event handlers
     readBtn.addEventListener("click", () => {
-      const selStart = textArea.selectionStart;
-      const selEnd = textArea.selectionEnd;
-      const selectedText = (selStart !== undefined && selEnd !== undefined && selEnd > selStart)
-        ? textArea.value.substring(selStart, selEnd)
-        : "";
-      const textToRead = selectedText.trim() ? selectedText : textArea.value;
-      speakText(textToRead);
-    });
-
-    stopBtn.addEventListener("click", () => {
-      if (supportsSpeech()) {
-        window.speechSynthesis.cancel();
-        setStatus("Stopped");
+      if (isTTSSpeaking) {
+        // Stop TTS
+        if (supportsSpeech()) {
+          window.speechSynthesis.cancel();
+          setStatus("Stopped");
+        }
+        currentUtterance = null;
+        isTTSSpeaking = false;
+        updateReadButton();
+      } else {
+        // Start TTS
+        const selStart = textArea.selectionStart;
+        const selEnd = textArea.selectionEnd;
+        const selectedText = (selStart !== undefined && selEnd !== undefined && selEnd > selStart)
+          ? textArea.value.substring(selStart, selEnd)
+          : "";
+        const textToRead = selectedText.trim() ? selectedText : textArea.value;
+        speakText(textToRead);
       }
-      readBtn.disabled = false;
-      stopBtn.disabled = true;
-      currentUtterance = null;
     });
 
     voiceSelect.addEventListener("change", () => {
@@ -412,7 +423,7 @@
       recognition.onend = () => {
         isListening = false;
         micBtn.classList.remove('listening');
-        micBtn.textContent = '🎤 Listen';
+        micBtn.textContent = '🎤 Mic Dictation';
         textArea.classList.remove('listening-textarea');
         
         if (shouldKeepListening) {
@@ -506,8 +517,8 @@
         evt.preventDefault();
         if (shouldKeepListening) {
           micBtn.click(); // Stop speech recognition first
-        } else {
-          stopBtn.click(); // Stop TTS
+        } else if (isTTSSpeaking) {
+          readBtn.click(); // Stop TTS
         }
         return;
       }
@@ -522,7 +533,6 @@
     if (!supportsSpeech()) {
       setStatus("Web Speech API not supported in this browser. Use Chrome/Chromium for best results.");
       readBtn.disabled = true;
-      stopBtn.disabled = true;
     } else {
       setStatus("Loading voices...");
       // populate voices (some browsers require async wait)
