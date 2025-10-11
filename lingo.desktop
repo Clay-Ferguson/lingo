@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Lingo
+Comment=Text-to-Speech and Speech Recognition Web Application
+Exec=bash -c "cd /home/clay/ferguson/projects/lingo && ./run.sh > /tmp/lingo.log 2>&1"
+Icon=/home/clay/ferguson/projects/lingo/lingo-logo.png
+Path=/home/clay/ferguson/projects/lingo
+Terminal=false
+StartupNotify=true
+Categories=Audio;AudioVideo;Office;Utility;
+Keywords=speech;tts;text-to-speech;voice;recognition;dictation;
+MimeType=text/plain;
+StartupWMClass=lingo
