@@ -206,6 +206,8 @@
         </div>
       </div>
       <button id="micBtn" title="Start/Stop Speech Recognition (Ctrl/Cmd+M)">🎤 Mic Dictation</button>
+      <button id="copyBtn" title="Copy text to clipboard">📋 Copy</button>
+      <button id="clearBtn" title="Clear all text">🗑️ Clear</button>
     </div>
     <div class="status" id="status">Ready</div>
   </div>
@@ -217,6 +219,8 @@
   <script>
     const readBtn = document.getElementById("readBtn");
     const micBtn = document.getElementById("micBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const clearBtn = document.getElementById("clearBtn");
     const voiceSelect = document.getElementById("voiceSelect");
     const rateSelect = document.getElementById("rateSelect");
     const textArea = document.getElementById("text");
@@ -579,6 +583,33 @@
 
     // Speech Recognition button event
     micBtn.addEventListener("click", toggleSpeechRecognition);
+
+    // Copy button event
+    copyBtn.addEventListener("click", async () => {
+      const text = textArea.value;
+      if (!text || !text.trim()) {
+        setStatus("Nothing to copy");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus("Copied to clipboard!");
+        setTimeout(() => setStatus("Ready"), 2000);
+      } catch (error) {
+        console.error('Copy failed:', error);
+        setStatus("Failed to copy to clipboard");
+        setTimeout(() => setStatus("Ready"), 2000);
+      }
+    });
+
+    // Clear button event
+    clearBtn.addEventListener("click", () => {
+      textArea.value = "";
+      textArea.focus();
+      setStatus("Text cleared");
+      setTimeout(() => setStatus("Ready"), 2000);
+    });
 
     // keyboard shortcuts while textarea focused
     textArea.addEventListener("keydown", (evt) => {
