@@ -7,7 +7,9 @@ A powerful, single-file web application for text-to-speech (TTS) and speech reco
 ## ✨ Features
 
 ### 🔊 Text-to-Speech (TTS)
-- **Smart Reading**: Read selected text or the entire document
+- **Smart Reading**: Read selected text, from cursor position, or the entire document
+- **Cursor Position Reading**: Place your cursor anywhere in the text to start reading from that point
+- **Pause & Resume**: Pause speech at any time and resume where you left off
 - **Voice Selection**: Choose from all available system voices with language indicators
 - **Speed Control**: Adjustable speaking rates from slow (0.85x) to ludicrous (1.35x)
 - **Persistent Settings**: Voice and speed preferences automatically saved
@@ -74,10 +76,13 @@ python3 -m http.server 8009
 ### Text-to-Speech
 1. **Type or paste text** into the main textarea
 2. **Drag and drop text** from other applications directly into the textarea (especially handy on Linux - simply select text from any app and drag it in)
-3. **Select specific text** (optional) to read only that portion
+3. **Position your cursor** where you want reading to begin, or **select specific text** to read only that portion
 4. **Click "🔊 Read Aloud"** or press **Ctrl/Cmd + Enter**
 5. **Choose your preferred voice** and speaking speed from the dropdowns
-6. **Click "⏹️ Stop"** or press **Escape** to stop reading
+6. **Click "⏸️ Pause"** to pause reading, then **"▶️ Resume"** to continue from where you left off
+7. **Click "⏹️ Stop"** or press **Escape** to stop reading completely
+
+> **Tip**: If your cursor is at the very end of the text, clicking Read Aloud will start from the beginning.
 
 ### Speech Recognition
 1. **Click "🎤 Mic Dictation"** or press **Ctrl/Cmd + M**

@@ -12,9 +12,11 @@ Lingo is a single-page web application for text-to-speech (TTS) and speech recog
 
 ### Core Functionality Areas
 1. **TTS Engine** (`speakText()` function): Handles voice synthesis with voice selection and rate control
-2. **Speech Recognition** (`toggleSpeechRecognition()`): Continuous dictation with auto-restart capability
-3. **UI State Management**: Status updates, button states, and visual feedback for active operations
-4. **Persistent Settings**: localStorage for voice and rate preferences across sessions
+2. **TTS Playback Controls**: Stop, Pause, and Resume buttons with `speechSynthesis.pause()`/`resume()` APIs
+3. **Cursor Position Reading**: Reading starts from cursor position (falls back to beginning if cursor is at end)
+4. **Speech Recognition** (`toggleSpeechRecognition()`): Continuous dictation with auto-restart capability
+5. **UI State Management**: Status updates, button visibility, and visual feedback for active operations
+6. **Persistent Settings**: localStorage for voice and rate preferences across sessions
 
 ## Development Workflow
 
@@ -39,8 +41,8 @@ Lingo is a single-page web application for text-to-speech (TTS) and speech recog
 - **Recognition Auto-Recovery**: Automatic restart on speech recognition end events
 
 ### State Management
-- **Global Variables**: `isTTSSpeaking`, `isListening`, `shouldKeepListening` for operation states
-- **DOM-Driven UI**: Button text/classes change based on current operation state
+- **Global Variables**: `isTTSSpeaking`, `isTTSPaused`, `isListening`, `shouldKeepListening` for operation states
+- **DOM-Driven UI**: Button visibility/classes change based on current operation state (e.g., Pause/Resume buttons swap visibility)
 - **localStorage Keys**: Use versioned keys (`_v1` suffix) for settings migration
 
 ### Event Handling Patterns

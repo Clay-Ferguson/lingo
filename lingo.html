@@ -442,12 +442,21 @@
     // event handlers
     readBtn.addEventListener("click", () => {
       // Start TTS
-      const selStart = textArea.selectionStart;
-      const selEnd = textArea.selectionEnd;
-      const selectedText = (selStart !== undefined && selEnd !== undefined && selEnd > selStart)
-        ? textArea.value.substring(selStart, selEnd)
-        : "";
-      const textToRead = selectedText.trim() ? selectedText : textArea.value;
+      const selStart = textArea.selectionStart ?? 0;
+      const selEnd = textArea.selectionEnd ?? 0;
+      
+      let textToRead;
+      if (selEnd > selStart) {
+        // If there's a selection, read only the selected text
+        textToRead = textArea.value.substring(selStart, selEnd);
+      } else {
+        // Otherwise, read from cursor position to the end
+        textToRead = textArea.value.substring(selStart);
+        // If at the very end (nothing to read), start from the beginning
+        if (!textToRead.length) {
+          textToRead = textArea.value;
+        }
+      }
       speakText(textToRead);
     });
 
