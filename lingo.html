@@ -234,6 +234,7 @@
 
     const STORAGE_VOICE_KEY = "tts_selected_voice_name_v1";
     const STORAGE_RATE_KEY = "tts_selected_rate_v1";
+    const STORAGE_TEXT_KEY = "tts_text_buffer_v1";
 
     let currentUtterance = null;
     let isTTSSpeaking = false;
@@ -656,6 +657,20 @@
       setTimeout(() => setStatus("Ready"), 2000);
     });
 
+    // Save text buffer when page is about to close
+    window.addEventListener("beforeunload", () => {
+      try {
+        let textToSave = textArea.value;
+        // Add divider prefix if text exists and doesn't already start with one
+        if (textToSave.trim() && !textToSave.trim().startsWith('---')) {
+          textToSave = '\n---\n' + textToSave;
+        }
+        localStorage.setItem(STORAGE_TEXT_KEY, textToSave);
+      } catch (e) {
+        console.error('Error saving text buffer:', e);
+      }
+    });
+
     // keyboard shortcuts while textarea focused
     textArea.addEventListener("keydown", (evt) => {
       if ((evt.ctrlKey || evt.metaKey) && evt.key === "Enter") {
@@ -702,8 +717,42 @@
     // Initialize speech recognition
     initializeSpeechRecognition();
 
-    // restore textarea content or focus
-    textArea.focus();
+    // Restore saved text buffer on page load
+    try {
+      const savedText = localStorage.getItem(STORAGE_TEXT_KEY);
+      if (savedText) {
+        textArea.value = savedText;
+      }
+    } catch (e) {
+      console.error('Error restoring text buffer:', e);
+    }
+      // After a short delay, ensure focus and cursor position again
+    // (in case browser stole focus during page load)
+    setTimeout(() => {
+      textArea.focus();
+    }, 1000);
+
+    // After a short delay, ensure focus and cursor position again
+    // (in case browser stole focus during page load)
+    setTimeout(() => {
+      textArea.setSelectionRange(0, 0);
+    }, 1200);
+
+    // Check URL parameter to auto-start mic dictation
+    // Use a delay to ensure speech recognition is fully initialized
+    function checkAutoMicStart() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const micParam = urlParams.get('mic');
+      if (micParam && micParam.toLowerCase() === 'on') {
+        // Start mic dictation if not already listening and recognition is available
+        if (!shouldKeepListening && supportsSpeechRecognition()) {
+          toggleSpeechRecognition();
+        }
+      }
+    }
+
+    // Delay auto-mic start to ensure speech engine is initialized
+    setTimeout(checkAutoMicStart, 1000);
 
     // Expose some helpers to console for debugging if needed (handy during development)
     window.__tts = {

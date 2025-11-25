@@ -27,6 +27,9 @@ A powerful, single-file web application for text-to-speech (TTS) and speech reco
 - **Ctrl/Cmd + M**: Toggle microphone dictation
 - **Escape**: Stop all active operations (TTS or speech recognition)
 
+### 🔗 URL Parameters
+- **`?mic=on`**: Automatically start mic dictation when the page loads
+
 ### 🎨 User Interface
 - **Dark Theme**: Easy-on-the-eyes default dark interface
 - **Responsive Design**: Optimized for both desktop and mobile devices
@@ -89,6 +92,8 @@ python3 -m http.server 8009
 2. **Speak clearly** - your words will appear in the textarea
 3. **The app continues listening** until you stop it manually
 4. **Click "⏹️ Stop"** or press **Escape** to stop dictation
+
+> **Tip**: Add `?mic=on` to the URL to automatically start mic dictation when the page loads (e.g., `http://localhost:8009/lingo.html?mic=on`).
 
 ## 🛠️ Technical Details
 

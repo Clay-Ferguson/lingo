@@ -53,6 +53,12 @@ if (evt.key === "Escape") // Stop all operations
 if ((evt.ctrlKey || evt.metaKey) && evt.key.toLowerCase() === "m") // Toggle mic
 ```
 
+### URL Parameter Handling
+- **`?mic=on`**: Auto-starts mic dictation 1 second after page load
+- Uses `URLSearchParams` to parse query string
+- `checkAutoMicStart()` function handles the delayed initialization
+- Delay ensures speech recognition engine is fully initialized before activation
+
 ### CSS Architecture
 - **CSS Custom Properties**: All colors/spacing defined in `:root` for easy theming
 - **Mobile-First Responsive**: `@media (max-width: 640px)` breakpoint for layout changes
