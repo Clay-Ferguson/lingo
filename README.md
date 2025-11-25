@@ -80,7 +80,7 @@ python3 -m http.server 8009
 1. **Type or paste text** into the main textarea
 2. **Drag and drop text** from other applications directly into the textarea (especially handy on Linux - simply select text from any app and drag it in)
 3. **Position your cursor** where you want reading to begin, or **select specific text** to read only that portion
-4. **Click "🔊 Read Aloud"** or press **Ctrl/Cmd + Enter**
+4. **Click "🔊 Read"** or press **Ctrl/Cmd + Enter**
 5. **Choose your preferred voice** and speaking speed from the dropdowns
 6. **Click "⏸️ Pause"** to pause reading, then **"▶️ Resume"** to continue from where you left off
 7. **Click "⏹️ Stop"** or press **Escape** to stop reading completely
@@ -88,7 +88,7 @@ python3 -m http.server 8009
 > **Tip**: If your cursor is at the very end of the text, clicking Read Aloud will start from the beginning.
 
 ### Speech Recognition
-1. **Click "🎤 Mic Dictation"** or press **Ctrl/Cmd + M**
+1. **Click "🎤 Mic"** or press **Ctrl/Cmd + M**
 2. **Speak clearly** - your words will appear in the textarea
 3. **The app continues listening** until you stop it manually
 4. **Click "⏹️ Stop"** or press **Escape** to stop dictation
