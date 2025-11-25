@@ -191,6 +191,9 @@
     <div class="controls-left">
       <div class="tts-panel">
         <button id="readBtn" title="Read selection or full text (Ctrl/Cmd+Enter)">🔊 Read Aloud</button>
+        <button id="stopBtn" style="display:none" title="Stop speaking (Esc)">⏹️ Stop</button>
+        <button id="pauseBtn" style="display:none" title="Pause speaking">⏸️ Pause</button>
+        <button id="resumeBtn" style="display:none" title="Resume speaking">▶️ Resume</button>
         <div class="selects" aria-hidden="false">
           <label for="voiceSelect" style="display:none">Voice</label>
           <select id="voiceSelect" aria-label="Choose voice"></select>
@@ -218,6 +221,9 @@
 
   <script>
     const readBtn = document.getElementById("readBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const resumeBtn = document.getElementById("resumeBtn");
     const micBtn = document.getElementById("micBtn");
     const copyBtn = document.getElementById("copyBtn");
     const clearBtn = document.getElementById("clearBtn");
@@ -231,6 +237,7 @@
 
     let currentUtterance = null;
     let isTTSSpeaking = false;
+    let isTTSPaused = false;
     
     // Speech Recognition variables
     let recognition = null;
@@ -251,12 +258,20 @@
 
     function updateReadButton() {
       if (isTTSSpeaking) {
-        readBtn.textContent = "⏹️ Stop";
-        readBtn.title = "Stop speaking (Esc)";
-        readBtn.disabled = false;
+        readBtn.style.display = "none";
+        stopBtn.style.display = "";
+        if (isTTSPaused) {
+          pauseBtn.style.display = "none";
+          resumeBtn.style.display = "";
+        } else {
+          pauseBtn.style.display = "";
+          resumeBtn.style.display = "none";
+        }
       } else {
-        readBtn.textContent = "🔊 Read Aloud";
-        readBtn.title = "Read selection or full text (Ctrl/Cmd+Enter)";
+        readBtn.style.display = "";
+        stopBtn.style.display = "none";
+        pauseBtn.style.display = "none";
+        resumeBtn.style.display = "none";
         // Disable read button when speech recognition is active
         readBtn.disabled = shouldKeepListening;
       }
@@ -396,6 +411,7 @@
         utter.onend = () => {
           currentUtterance = null;
           isTTSSpeaking = false;
+          isTTSPaused = false;
           setStatus("Done");
           updateReadButton();
           updateMicButton();
@@ -404,6 +420,7 @@
         utter.onerror = (evt) => {
           currentUtterance = null;
           isTTSSpeaking = false;
+          isTTSPaused = false;
           setStatus("Error during speech: " + (evt.error || "Unknown error"));
           console.error("Speech error:", evt);
           updateReadButton();
@@ -424,25 +441,44 @@
 
     // event handlers
     readBtn.addEventListener("click", () => {
-      if (isTTSSpeaking) {
-        // Stop TTS
-        if (supportsSpeech()) {
-          window.speechSynthesis.cancel();
-          setStatus("Stopped");
-        }
-        currentUtterance = null;
-        isTTSSpeaking = false;
+      // Start TTS
+      const selStart = textArea.selectionStart;
+      const selEnd = textArea.selectionEnd;
+      const selectedText = (selStart !== undefined && selEnd !== undefined && selEnd > selStart)
+        ? textArea.value.substring(selStart, selEnd)
+        : "";
+      const textToRead = selectedText.trim() ? selectedText : textArea.value;
+      speakText(textToRead);
+    });
+
+    stopBtn.addEventListener("click", () => {
+      // Stop TTS
+      if (supportsSpeech()) {
+        window.speechSynthesis.cancel();
+        setStatus("Stopped");
+      }
+      currentUtterance = null;
+      isTTSSpeaking = false;
+      isTTSPaused = false;
+      updateReadButton();
+      updateMicButton();
+    });
+
+    pauseBtn.addEventListener("click", () => {
+      if (supportsSpeech() && isTTSSpeaking && !isTTSPaused) {
+        window.speechSynthesis.pause();
+        isTTSPaused = true;
+        setStatus("Paused");
         updateReadButton();
-        updateMicButton();
-      } else {
-        // Start TTS
-        const selStart = textArea.selectionStart;
-        const selEnd = textArea.selectionEnd;
-        const selectedText = (selStart !== undefined && selEnd !== undefined && selEnd > selStart)
-          ? textArea.value.substring(selStart, selEnd)
-          : "";
-        const textToRead = selectedText.trim() ? selectedText : textArea.value;
-        speakText(textToRead);
+      }
+    });
+
+    resumeBtn.addEventListener("click", () => {
+      if (supportsSpeech() && isTTSSpeaking && isTTSPaused) {
+        window.speechSynthesis.resume();
+        isTTSPaused = false;
+        setStatus("Speaking...");
+        updateReadButton();
       }
     });
 
@@ -623,7 +659,7 @@
         if (shouldKeepListening) {
           micBtn.click(); // Stop speech recognition first
         } else if (isTTSSpeaking) {
-          readBtn.click(); // Stop TTS
+          stopBtn.click(); // Stop TTS
         }
         return;
       }
