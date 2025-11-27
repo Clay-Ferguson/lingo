@@ -285,7 +285,7 @@
         micBtn.disabled = false;
       } else {
         micBtn.classList.remove('listening');
-        micBtn.textContent = '🎤 Mic Dictation';
+        micBtn.textContent = '🎤 Mic';
         // Disable mic button when TTS is speaking
         micBtn.disabled = isTTSSpeaking;
       }
@@ -532,7 +532,7 @@
       recognition.onend = () => {
         isListening = false;
         micBtn.classList.remove('listening');
-        micBtn.textContent = '🎤 Mic Dictation';
+        micBtn.textContent = '🎤 Mic';
         textArea.classList.remove('listening-textarea');
         
         if (shouldKeepListening) {
