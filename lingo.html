@@ -240,6 +240,9 @@
     let isTTSSpeaking = false;
     let isTTSPaused = false;
     
+    // Paragraph queue for chunked TTS reading
+    let paragraphQueue = [];
+    
     // Speech Recognition variables
     let recognition = null;
     let isListening = false;
@@ -370,74 +373,159 @@
         updateMicButton();
       }
 
-      // Cancel any current speech
+      // Cancel any current speech and clear the queue
       window.speechSynthesis.cancel();
+      paragraphQueue = [];
 
-      // Wait a moment for cancel to complete
-      setTimeout(() => {
-        const utter = new SpeechSynthesisUtterance(text.trim());
-        const voices = window.speechSynthesis.getVoices() || [];
-
-        // If no voices available, try to trigger voice loading
-        if (voices.length === 0) {
-          // Force voice loading by speaking empty text first
-          const tempUtter = new SpeechSynthesisUtterance("");
-          window.speechSynthesis.speak(tempUtter);
-          window.speechSynthesis.cancel();
+      // Split text into chunks that the speech API can handle
+      // First split on paragraph breaks (double newlines or more)
+      // Then split long paragraphs into sentences
+      const MAX_CHUNK_LENGTH = 200; // Characters - keep chunks small for reliability
+      
+      const rawParagraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+      
+      // If no paragraph breaks found, treat the whole text as one paragraph
+      const paragraphs = rawParagraphs.length > 0 ? rawParagraphs : [text];
+      
+      // Further split long paragraphs into sentences
+      const chunks = [];
+      for (const para of paragraphs) {
+        const trimmed = para.trim().replace(/\n/g, ' '); // Replace single newlines with spaces
+        
+        if (trimmed.length <= MAX_CHUNK_LENGTH) {
+          chunks.push(trimmed);
+        } else {
+          // Split on sentence boundaries (., !, ?)
+          // Keep the punctuation with the sentence
+          const sentences = trimmed.match(/[^.!?]+[.!?]+\s*/g) || [trimmed];
           
-          // Retry after a moment
-          setTimeout(() => speakText(text), 200);
-          return;
+          let currentChunk = '';
+          for (const sentence of sentences) {
+            const trimmedSentence = sentence.trim();
+            if (currentChunk.length + trimmedSentence.length <= MAX_CHUNK_LENGTH) {
+              currentChunk += (currentChunk ? ' ' : '') + trimmedSentence;
+            } else {
+              if (currentChunk) {
+                chunks.push(currentChunk);
+              }
+              // If a single sentence is too long, just add it anyway
+              currentChunk = trimmedSentence;
+            }
+          }
+          if (currentChunk) {
+            chunks.push(currentChunk);
+          }
         }
+      }
+      
+      if (chunks.length === 0) {
+        setStatus("Nothing to read");
+        return;
+      }
 
-        // prefer exact match by name; fallback to currently selected index
-        const chosenName = voiceSelect.value;
-        const chosenVoice = voices.find(v => v.name === chosenName) || voices[voiceSelect.selectedIndex] || null;
-        if (chosenVoice) {
-          utter.voice = chosenVoice;
-        }
+      // Populate the queue
+      paragraphQueue = chunks;
 
-        utter.rate = parseFloat(rateSelect.value) || 1.0;
-        utter.pitch = 1.0;
-        utter.volume = 1.0;
-
-        utter.onstart = () => {
-          currentUtterance = utter;
-          isTTSSpeaking = true;
-          setStatus("Speaking...");
-          updateReadButton();
-          updateMicButton();
-        };
-
-        utter.onend = () => {
-          currentUtterance = null;
-          isTTSSpeaking = false;
-          isTTSPaused = false;
-          setStatus("Done");
-          updateReadButton();
-          updateMicButton();
-        };
-
-        utter.onerror = (evt) => {
-          currentUtterance = null;
-          isTTSSpeaking = false;
-          isTTSPaused = false;
-          setStatus("Error during speech: " + (evt.error || "Unknown error"));
-          console.error("Speech error:", evt);
-          updateReadButton();
-          updateMicButton();
-        };
-
-        try {
-          window.speechSynthesis.speak(utter);
-        } catch (e) {
-          setStatus("Error: " + e.message);
-          console.error("Speech synthesis error:", e);
-          isTTSSpeaking = false;
-          updateReadButton();
-          updateMicButton();
-        }
+      // Wait a moment for cancel to complete, then start reading
+      setTimeout(() => {
+        speakNextParagraph();
       }, 100);
+    }
+
+    function speakNextParagraph() {
+      // If queue is empty, we're done
+      if (paragraphQueue.length === 0) {
+        currentUtterance = null;
+        isTTSSpeaking = false;
+        isTTSPaused = false;
+        setStatus("Done");
+        updateReadButton();
+        updateMicButton();
+        return;
+      }
+
+      const voices = window.speechSynthesis.getVoices() || [];
+
+      // If no voices available, try to trigger voice loading
+      if (voices.length === 0) {
+        // Force voice loading by speaking empty text first
+        const tempUtter = new SpeechSynthesisUtterance("");
+        window.speechSynthesis.speak(tempUtter);
+        window.speechSynthesis.cancel();
+        
+        // Retry after a moment
+        setTimeout(() => speakNextParagraph(), 200);
+        return;
+      }
+
+      // Get the first paragraph from the queue
+      const paragraphText = paragraphQueue[0].trim();
+
+      const utter = new SpeechSynthesisUtterance(paragraphText);
+
+      // prefer exact match by name; fallback to currently selected index
+      const chosenName = voiceSelect.value;
+      const chosenVoice = voices.find(v => v.name === chosenName) || voices[voiceSelect.selectedIndex] || null;
+      if (chosenVoice) {
+        utter.voice = chosenVoice;
+      }
+
+      utter.rate = parseFloat(rateSelect.value) || 1.0;
+      utter.pitch = 1.0;
+      utter.volume = 1.0;
+
+      utter.onstart = () => {
+        currentUtterance = utter;
+        isTTSSpeaking = true;
+        const remaining = paragraphQueue.length;
+        setStatus(`Speaking... (${remaining} paragraph${remaining > 1 ? 's' : ''} remaining)`);
+        updateReadButton();
+        updateMicButton();
+      };
+
+      utter.onend = () => {
+        // Remove the paragraph we just finished reading
+        paragraphQueue.shift();
+        
+        // Continue with the next paragraph
+        speakNextParagraph();
+      };
+
+      utter.onerror = (evt) => {
+        console.error("Speech error:", evt);
+        
+        // "interrupted" errors can happen during normal cancel operations
+        // or when Chrome's speech synthesis times out - try to continue
+        if (evt.error === 'interrupted' && paragraphQueue.length > 0) {
+          // Remove the current chunk and try the next one
+          paragraphQueue.shift();
+          if (paragraphQueue.length > 0) {
+            setStatus("Resuming after interruption...");
+            setTimeout(() => speakNextParagraph(), 100);
+            return;
+          }
+        }
+        
+        // On other errors, clear everything
+        paragraphQueue = [];
+        currentUtterance = null;
+        isTTSSpeaking = false;
+        isTTSPaused = false;
+        setStatus("Error during speech: " + (evt.error || "Unknown error"));
+        updateReadButton();
+        updateMicButton();
+      };
+
+      try {
+        window.speechSynthesis.speak(utter);
+      } catch (e) {
+        setStatus("Error: " + e.message);
+        console.error("Speech synthesis error:", e);
+        paragraphQueue = [];
+        isTTSSpeaking = false;
+        updateReadButton();
+        updateMicButton();
+      }
     }
 
     // event handlers
@@ -462,11 +550,12 @@
     });
 
     stopBtn.addEventListener("click", () => {
-      // Stop TTS
+      // Stop TTS and clear the queue
       if (supportsSpeech()) {
         window.speechSynthesis.cancel();
         setStatus("Stopped");
       }
+      paragraphQueue = [];
       currentUtterance = null;
       isTTSSpeaking = false;
       isTTSPaused = false;
