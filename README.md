@@ -1,6 +1,6 @@
 # Lingo 🗣️
 
-A powerful, single-file web application for text-to-speech (TTS) and speech recognition functionality. **No web development knowledge required** - simply download and open the HTML file in your Chrome browser to get started! Lingo provides an intuitive interface for reading text aloud and converting speech to text, all running directly in your browser with no dependencies or build process required.
+A powerful, lightweight web application for text-to-speech (TTS) and speech recognition functionality. **No web development knowledge required** - simply download the project files and open `lingo.html` in your Chrome browser to get started! Lingo provides an intuitive interface for reading text aloud and converting speech to text, all running directly in your browser with no dependencies or build process required.
 
 ![Lingo Application Screenshot](lingo-screenshot.png)
 
@@ -35,7 +35,7 @@ A powerful, single-file web application for text-to-speech (TTS) and speech reco
 - **Responsive Design**: Optimized for both desktop and mobile devices
 - **Real-time Status**: Live feedback on current operations
 - **Accessible**: Full keyboard navigation and screen reader support
-- **Single-File Architecture**: Entire app contained in one HTML file
+- **Simple Architecture**: Clean separation of HTML, CSS, and JavaScript
 
 ## 🚀 Quick Start
 
@@ -43,8 +43,8 @@ A powerful, single-file web application for text-to-speech (TTS) and speech reco
 
 The easiest way to use Lingo is to simply open the HTML file directly:
 
-1. **Download** `lingo.html` to your computer
-2. **Double-click** the file or **right-click → Open with → Chrome** (or any browser that supports Web Speech APIs)
+1. **Download** `lingo.html`, `lingo.css`, and `lingo.js` to the same folder on your computer
+2. **Double-click** `lingo.html` or **right-click → Open with → Chrome** (or any browser that supports Web Speech APIs)
 3. **Start using** - no server setup required!
 
 > **Note**: Chrome/Chromium browsers provide the best experience with full TTS and speech recognition support.
@@ -98,10 +98,10 @@ python3 -m http.server 8009
 ## 🛠️ Technical Details
 
 ### Architecture
-- **Single HTML File**: Everything embedded - CSS, JavaScript, and HTML
+- **Three-File Structure**: Clean separation of HTML, CSS, and JavaScript
 - **No Build Process**: Runs directly in browser without compilation
 - **Zero Dependencies**: Uses only native Web APIs
-- **Portable**: Copy `lingo.html` anywhere and it works
+- **Portable**: Copy `lingo.html`, `lingo.css`, and `lingo.js` to any folder and it works
 
 ### Browser Compatibility
 | Browser | TTS Support | Speech Recognition |
@@ -121,8 +121,11 @@ python3 -m http.server 8009
 
 ```
 lingo/
-├── lingo.html          # Complete application (HTML + CSS + JS)
+├── lingo.html         # Main HTML structure
+├── lingo.css          # Styles and theming
+├── lingo.js           # Application logic
 ├── run.sh             # Startup script for local development
+├── kill.sh            # Stop the local server
 └── README.md          # This documentation
 ```
 
@@ -169,9 +172,9 @@ window.__tts.cancel();
 
 ## 🤝 Contributing
 
-Lingo follows a single-file architecture for maximum portability. When contributing:
+Lingo follows a simple three-file architecture for easy maintenance. When contributing:
 
-1. **Keep everything in `lingo.html`** - no separate files
+1. **Keep files organized** - HTML in `lingo.html`, styles in `lingo.css`, logic in `lingo.js`
 2. **Test across browsers** - especially Chrome vs Firefox
 3. **Maintain responsive design** - mobile and desktop compatibility
 4. **Preserve accessibility** - keyboard navigation and screen readers

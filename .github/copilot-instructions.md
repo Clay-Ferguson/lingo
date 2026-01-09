@@ -1,12 +1,14 @@
 # Lingo - AI Coding Agent Instructions
 
 ## Project Overview
-Lingo is a single-page web application for text-to-speech (TTS) and speech recognition functionality. The entire application is contained in a single HTML file (`lingo.html`) with embedded CSS and JavaScript, following a self-contained architecture pattern.
+Lingo is a single-page web application for text-to-speech (TTS) and speech recognition functionality. The application uses a clean three-file architecture with separate HTML, CSS, and JavaScript files for easy maintenance.
 
 ## Architecture & Key Components
 
-### Single-File Design Pattern
-- **Everything in `lingo.html`**: CSS, JavaScript, and HTML are all embedded in one file for maximum portability
+### Three-File Structure
+- **`lingo.html`**: Main HTML structure and UI elements
+- **`lingo.css`**: All styles, theming via CSS custom properties
+- **`lingo.js`**: Application logic, event handlers, and Web API integration
 - **No build process**: Direct browser execution without bundlers or compilation steps
 - **Minimal dependencies**: Uses only native Web APIs (Web Speech API, SpeechSynthesis)
 
@@ -59,7 +61,7 @@ if ((evt.ctrlKey || evt.metaKey) && evt.key.toLowerCase() === "m") // Toggle mic
 - `checkAutoMicStart()` function handles the delayed initialization
 - Delay ensures speech recognition engine is fully initialized before activation
 
-### CSS Architecture
+### CSS Architecture (in `lingo.css`)
 - **CSS Custom Properties**: All colors/spacing defined in `:root` for easy theming
 - **Mobile-First Responsive**: `@media (max-width: 640px)` breakpoint for layout changes
 - **Dark Theme Default**: Built-in dark theme optimized for accessibility
@@ -81,7 +83,7 @@ if ((evt.ctrlKey || evt.metaKey) && evt.key.toLowerCase() === "m") // Toggle mic
 - **Error Logging**: Console.error for speech API failures with context
 
 ## Common Modification Patterns
-- **Adding Features**: Extend the single HTML file with new script sections
-- **Styling Changes**: Modify CSS custom properties in `:root` for theme adjustments
-- **Keyboard Shortcuts**: Add to the textarea keydown event handler with preventDefault()
-- **API Integration**: Use fetch() calls within the existing JavaScript structure
+- **Adding Features**: Add new functions to `lingo.js`
+- **Styling Changes**: Modify CSS custom properties in `:root` within `lingo.css` for theme adjustments
+- **Keyboard Shortcuts**: Add to the textarea keydown event handler in `lingo.js` with preventDefault()
+- **API Integration**: Use fetch() calls within `lingo.js`
