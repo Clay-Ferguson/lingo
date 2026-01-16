@@ -4,6 +4,9 @@ A powerful, lightweight web application for text-to-speech (TTS) and speech reco
 
 ![Lingo Application Screenshot](lingo-screenshot.png)
 
+**Rant to Developers:**
+This project was very intentionally designed to be free of any specific frameworks (Vue, React, etc.) so it's easily understandable to all web developers and no porting from one framework to another is required. I also wanted this app to be runnable by non-developers simply by opening an HTML page locally. It seems to be the case that nearly *ALL* AI projects strugle endlessly with TTS/STT never getting it right. Gemini Voice sucks, OpenAI Voice sucks, Github Copilot Voice absolutely sucks, etc and yes voice can be a bit tricky to get right, but trust me this JS has it perfected. You guys no longer have any excuses! This code shows how easy it truly is.
+
 ## ✨ Features
 
 ### 🔊 Text-to-Speech (TTS)
