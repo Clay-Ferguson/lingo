@@ -1,5 +1,14 @@
 # Lingo 🗣️
 
+[![Static Site][static-badge]][static-url] [![Vanilla JS][vanilla-badge]][vanilla-url] [![License: MIT][license-badge]][license-url]
+
+[static-badge]: https://img.shields.io/badge/Static%20Site-No%20Build-blue
+[static-url]: lingo.html
+[vanilla-badge]: https://img.shields.io/badge/Vanilla%20JS-Framework%20Free-ffcc00
+[vanilla-url]: lingo.js
+[license-badge]: https://img.shields.io/badge/License-MIT-yellow.svg
+[license-url]: https://opensource.org/licenses/MIT
+
 A powerful, lightweight web application for text-to-speech (TTS) and speech recognition functionality. **No web development knowledge required** - simply download the project files and open `lingo.html` in your Chrome browser to get started! Lingo provides an intuitive interface for reading text aloud and converting speech to text, all running directly in your browser with no dependencies or build process required.
 
 ![Lingo Application Screenshot](lingo-screenshot.png)
